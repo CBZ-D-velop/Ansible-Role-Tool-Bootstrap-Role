@@ -3,7 +3,7 @@ galaxy_info:
   namespace: "tool"
   role_name: "bootstrap_role"
   description: "An Ansible role to bootstrap and create other roles."
-  company: "CBZ-Dvelop/Labo-CBZ"
+  company: "CBZ D-velop"
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
