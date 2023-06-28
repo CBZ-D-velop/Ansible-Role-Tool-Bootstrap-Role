@@ -1,4 +1,4 @@
-# Ansible role: labocbz.bootstrap_role
+# Ansible role: tool.bootstrap_role
 
 ![Licence Status](https://img.shields.io/badge/licence-MIT-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
@@ -17,6 +17,18 @@
 ![Tag: Molecule](https://img.shields.io/badge/Tech-Molecule-orange)
 
 An Ansible role to bootstrap and create other roles.
+
+The Role Bootstrap role automates the creation of a basic structure for an Ansible role. It sets up the necessary folders, files, and configurations to jumpstart your role development process. With a focus on best practices, this role includes the following features:
+
+Predefined Folder Structure: The role creates a well-organized folder structure, including defaults, files, handlers, meta, molecule, tasks, templates, tests, vars, and more. This ensures consistency and ease of maintenance throughout your role development.
+
+Code Quality Tools: The role includes configuration files such as .ansible-lint, .ansible.cfg, and .yamllint to help maintain high-quality code and adhere to best practices.
+
+Collaboration Support: The inclusion of a CODEOWNERS file enables easy collaboration and ownership assignment within your Git repository.
+
+Molecule Integration: The role comes preconfigured with Molecule, a testing framework for Ansible roles. It includes default molecule scenarios and GitLab CI configuration for continuous integration.
+
+By using the Role Bootstrap role, you can accelerate the creation of new Ansible roles, adhere to best practices, and focus on the core functionality of your roles.
 
 ## Folder structure
 
@@ -153,7 +165,8 @@ bootstrap_root_files:
   - ".ansible-lint"
   - ".ansible.cfg"
   - ".yamllint"
-
+  - "CODEOWNERS"
+  - ".gitlab-ci.yml"
 ```
 
 The best way is to modify these vars by copy the ./default/main.yml file into the ./vars and edit with your personnals requirements.
@@ -187,16 +200,16 @@ all vars from to put/from AWX / Tower
 To run this role, you can copy the molecule/default/converge.yml playbook and add it into your playbook:
 
 ```YAML
-- name: "Include labocbz.bootstrap_role"
+- name: "Include tool.bootstrap_role"
   tags:
-    - "labocbz.bootstrap_role"
+    - "tool.bootstrap_role"
   vars:
     bootstrap_role_base_path: "{{ inv_bootstrap_role_base_path }}"
     bootstrap_role_meta_role_name: "{{ inv_bootstrap_role_meta_role_name }}"
     bootstrap_role_meta_namespace: "{{ inv_bootstrap_role_meta_namespace }}"
     bootstrap_role_technologies: "{{ inv_bootstrap_role_technologies }}"
   ansible.builtin.include_role:
-    name: "labocbz.bootstrap_role"
+    name: "tool.bootstrap_role"
 ```
 
 ## Architectural Decisions Records
