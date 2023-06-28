@@ -1,0 +1,13 @@
+---
+# Don't forget to keep this file updated
+# molecule/<scenario>/verify.yml
+- name: "Verify"
+  hosts: "all"
+  gather_facts: false
+  tasks:
+
+    - name: "Ensure bootstraped role directory exists"
+      register: bootstraped_role_directory
+      failed_when: not bootstraped_role_directory.stat.exists
+      ansible.builtin.stat:
+        path: "{{ inv_bootstrap_role_base_path }}/{{ inv_bootstrap_role_meta_namespace }}.{{ inv_bootstrap_role_meta_role_name }}"

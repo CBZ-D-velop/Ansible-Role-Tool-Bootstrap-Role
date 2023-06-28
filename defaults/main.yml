@@ -1,0 +1,54 @@
+---
+# The current user and group to create file
+bootstrap_role_user: "root"
+# The base path on where you want your role
+bootstrap_role_base_path: "/root"
+
+# Your author name
+bootstrap_role_meta_author: "Lord Robin Crombez"
+# The namespace of your role
+bootstrap_role_meta_namespace: "labocbz"
+# The role name
+bootstrap_role_meta_role_name: "my_new_role"
+# The little description for the meta file and the readme
+bootstrap_role_meta_description: "This is a limited description for the meta."
+# Your compangy / lab name
+bootstrap_role_meta_company: "CBZ-Dvelop/Labo-CBZ"
+# The licence you wanna put on it (MIT file imported)
+bootstrap_role_meta_license: "MIT"
+# Some tags you want to put in plus of the base one
+bootstrap_role_tags:
+  - "UNIX"
+
+# The driver you use for molecule
+bootstrap_role_molecule_driver: "docker"
+
+# The path of your future role
+bootstrap_role_path: "{{ bootstrap_role_base_path }}/{{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}"
+
+# A list of folder to create
+bootstrap_role_folders:
+  - "defaults"
+  - "files"
+  - "handlers"
+  - "meta"
+  - "molecule"
+  - "molecule/default"
+  - "molecule/gitlabci"
+  - "tasks"
+  - "templates"
+  - "tests"
+  - "tests/tower"
+  - "tests/inventory"
+  - "tests/inventory/group_vars"
+  - "tests/inventory/host_vars"
+  - "tests/certs"
+  - "vars"
+
+# Some file to import in the root folder of the future role
+bootstrap_root_files:
+  - ".ansible-lint"
+  - ".ansible.cfg"
+  - ".yamllint"
+  - "CODEOWNERS"
+  - ".gitlab-ci.yml"
