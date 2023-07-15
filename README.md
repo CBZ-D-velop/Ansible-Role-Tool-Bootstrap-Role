@@ -128,7 +128,7 @@ bootstrap_role_meta_role_name: "my_new_role"
 # The little description for the meta file and the readme
 bootstrap_role_meta_description: "This is a limited description for the meta."
 # Your compangy / lab name
-bootstrap_role_meta_company: "CBZ-Dvelop/Labo-CBZ"
+bootstrap_role_meta_company: "Labo-CBZ"
 # The licence you wanna put on it (MIT file imported)
 bootstrap_role_meta_license: "MIT"
 # Some tags you want to put in plus of the base one
