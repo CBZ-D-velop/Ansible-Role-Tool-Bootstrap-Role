@@ -1,4 +1,5 @@
-# Ansible role: tool.bootstrap_role
+
+# Ansible playbook: tool.bootstrap_ssl_files
 
 ![Licence Status](https://img.shields.io/badge/licence-MIT-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
@@ -12,51 +13,28 @@
 
 ![Tag: Ansible](https://img.shields.io/badge/Tech-Ansible-orange)
 ![Tag: Debian](https://img.shields.io/badge/Tech-Debian-orange)
-![Tag: Boilerplate](https://img.shields.io/badge/Tech-Boilerplate-orange)
-![Tag: Bootstrap](https://img.shields.io/badge/Tech-Bootstrap-orange)
-![Tag: Molecule](https://img.shields.io/badge/Tech-Molecule-orange)
+![Tag: OpenSSL](https://img.shields.io/badge/Tech-OpenSSL-orange)
+![Tag: SSL/TLS](https://img.shields.io/badge/Tech-SSL%2FTLS-orange)
+![Tag: KEY](https://img.shields.io/badge/Tech-KEY-orange)
+![Tag: REQ](https://img.shields.io/badge/Tech-REQ-orange)
+![Tag: CSR](https://img.shields.io/badge/Tech-CSR-orange)
+![Tag: CRT](https://img.shields.io/badge/Tech-CRT-orange)
+![Tag: PEM](https://img.shields.io/badge/Tech-PEM-orange)
+![Tag: CA](https://img.shields.io/badge/Tech-CA-orange)
 
-An Ansible role to bootstrap and create other roles.
+An Ansible playbook create a list of defined files related to SSL/TLS
 
-The Role Bootstrap role automates the creation of a basic structure for an Ansible role. It sets up the necessary folders, files, and configurations to jumpstart your role development process. With a focus on best practices, this role includes the following features:
+The Certificate Management playbook automates the creation and organization of certificates, including Certificate Authorities (CAs), root CAs, intermediate CAs, and end certificates. This playbook simplifies the process of generating certificates and provides a streamlined approach for managing SSL/TLS infrastructure. Key features of this playbook include:
 
-Predefined Folder Structure: The role creates a well-organized folder structure, including defaults, files, handlers, meta, molecule, tasks, templates, tests, vars, and more. This ensures consistency and ease of maintenance throughout your role development.
+Certificate Creation: The playbook generates various types of certificates, including root CAs, intermediate CAs, and end certificates. It allows you to define the desired SSL/TLS information, such as Common Name (CN), Country (C), State (ST), Locality (L), Organization (O), Organizational Unit (OU), and email address.
 
-Code Quality Tools: The role includes configuration files such as .ansible-lint, .ansible.cfg, and .yamllint to help maintain high-quality code and adhere to best practices.
+Certificate Filing: The playbook organizes the generated certificates into separate components and creates a ZIP archive for each component. This makes it easy to deploy and distribute the certificates to the desired target systems.
 
-Collaboration Support: The inclusion of a CODEOWNERS file enables easy collaboration and ownership assignment within your Git repository.
+Customization Options: The playbook provides flexibility by allowing you to specify the validity period, key size, and base path for storing the certificate files. You can customize these parameters to meet your specific requirements.
 
-Molecule Integration: The role comes preconfigured with Molecule, a testing framework for Ansible roles. It includes default molecule scenarios and GitLab CI configuration for continuous integration.
+By utilizing the Certificate Management playbook, you can simplify the creation and management of SSL/TLS certificates, ensure proper organization and filing of certificates, and streamline the deployment process.
 
-By using the Role Bootstrap role, you can accelerate the creation of new Ansible roles, adhere to best practices, and focus on the core functionality of your roles.
-
-## Folder structure
-
-By default Ansible will look in each directory within a role for a main.yml file for relevant content (also man.yml and main):
-
-```PYTHON
-.
-├── README.md  # Contains an overview of the role and its purpose.
-├── defaults
-│   ├── main.yml  # Contains default variables for the role that can be overridden by users.
-│   └── README.md  # Contains documentation for the default variables.
-├── files
-│   └── README.md  # Contains documentation for the files in the directory.
-├── handlers
-│   ├── main.yml  # Contains handlers that can be called by tasks within the role.
-│   └── README.md  # Contains documentation for the handlers.
-├── meta
-│   ├── main.yml  # Contains metadata about the role, including dependencies and supported platforms.
-│   └── README.md  # Contains documentation for the role metadata.
-├── tasks
-│   ├── main.yml  # Contains tasks to be executed by the role on the managed nodes.
-│   └── README.md  # Contains documentation for the tasks.
-├── templates
-│   └── README.md  # Contains documentation for the templates.
-└── vars
-    ├── main.yml  # Contains variables that are specific to the role and are not meant to be overridden.
-    └── README.md  # Contains documentation for the role variables.
-```
+## Deployment diagramm
 
 ## Tests and simulations
 
@@ -75,10 +53,10 @@ side_effect
 
 Executing theses test in this order is called a "scenario" and Molecule can handle them.
 
-Molecule use Ansible and pre configured playbook to create containers, prepare them, converge (run the role) and verify its execution.
+Molecule use Ansible and pre configured playbook to create containers, prepare them, converge (run the playbook) and verify its execution.
 You can manage multiples scenario with multiples tests in order to get a 100% code coverage.
 
-This role contains a ./tests folder. In this folder you can use the inventory or the tower folder to create a simualtion of a real inventory and a real AWX / Tower job execution.
+This playbook contains a ./tests folder. In this folder you can use the inventory or the tower folder to create a simualtion of a real inventory and a real AWX / Tower job execution.
 
 ### Command reminder
 
@@ -89,7 +67,7 @@ yamllint -c ./.yamllint .
 # Check your Ansible syntax and code security
 ansible-lint --config=./.ansible-lint .
 
-# Execute and test your role
+# Execute and test your playbook
 molecule lint
 molecule create
 molecule list
@@ -103,132 +81,117 @@ molecule test
 
 ## Installation
 
-To install this role, just copy/import this role or raw file into your fresh playbook repository or call it with the "include_role/import_role" module.
+To install this playbook, just copy/import this playbook or raw file into your fresh playbook repository or call it with the "include_playbook/import_playbook" module.
 
 ## Usage
 
 ### Vars
 
-Some vars a required to run this role:
-
-```YAML
----
----
-# The current user and group to create file
-bootstrap_role_user: "root"
-# The base path on where you want your role
-bootstrap_role_base_path: "/root"
-
-# Your author name
-bootstrap_role_meta_author: "Lord Robin Crombez"
-# The namespace of your role
-bootstrap_role_meta_namespace: "labocbz"
-# The role name
-bootstrap_role_meta_role_name: "my_new_role"
-# The little description for the meta file and the readme
-bootstrap_role_meta_description: "This is a limited description for the meta."
-# Your compangy / lab name
-bootstrap_role_meta_company: "CBZ-Dvelop/Labo-CBZ"
-# The licence you wanna put on it (MIT file imported)
-bootstrap_role_meta_license: "MIT"
-# Some tags you want to put in plus of the base one
-bootstrap_role_tags:
-  - "UNIX"
-
-# The driver you use for molecule
-bootstrap_role_molecule_driver: "docker"
-
-# The path of your future role
-bootstrap_role_path: "{{ bootstrap_role_base_path }}/{{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}"
-
-# A list of folder to create
-bootstrap_role_folders:
-  - "defaults"
-  - "files"
-  - "handlers"
-  - "meta"
-  - "molecule"
-  - "molecule/default"
-  - "molecule/gitlabci"
-  - "tasks"
-  - "templates"
-  - "tests"
-  - "tests/tower"
-  - "tests/inventory"
-  - "tests/inventory/group_vars"
-  - "tests/inventory/host_vars"
-  - "tests/certs"
-  - "vars"
-
-# Some file to import in the root folder of the future role
-bootstrap_root_files:
-  - ".ansible-lint"
-  - ".ansible.cfg"
-  - ".yamllint"
-  - "CODEOWNERS"
-  - ".gitlab-ci.yml"
-```
-
-The best way is to modify these vars by copy the ./default/main.yml file into the ./vars and edit with your personnals requirements.
-
-You can set vars in the template model in Ansible AWX / Tower or just surchage them during the playbook call.
-
-In order to surchage vars, you have multiples possibilities but for mains cases you have to put vars in your inventory and/or on your AWX / Tower interface.
-
 ```YAML
 # From inventory
 ---
-inv_bootstrap_role_base_path: "/root"
-inv_bootstrap_role_meta_role_name: "my_new_role"
-inv_bootstrap_role_meta_namespace: "labocbz"
-inv_bootstrap_role_technologies:
-  - "UNIX"
-  - "Ansible"
-  - "Shell"
-  - "PHP"
 
 ```
 
 ```YAML
 # From AWX / Tower
 ---
-all vars from to put/from AWX / Tower
-```
+# The current user and group to create files
+input_bootstrap_ssl_files_user: "root"
+# The base path on where you want your certs files
+input_bootstrap_ssl_files_base_path: "/tmp/ssl/MyPKI"
+# The validity of your certs files
+input_bootstrap_ssl_files_ca_validity: 3650
+input_bootstrap_ssl_files_cert_validity: 90
+# The size of your key
+input_bootstrap_ssl_files_key_size: 4096
+# Files wanted and where you want them
 
-### Run
+# SSL/TLS informations
+input_bootstrap_ssl_files_root_ca:
+  cn: "My Local Ansible Root CA"
+  c: "FR"
+  st: "state"
+  l: "city"
+  o: "Local Ansible"
+  ou: "My Local Ansible Root CA"
+  email_address: "contact@your.domain.tld"
+  password: "m3EH3A56h5mNY"
 
-To run this role, you can copy the molecule/default/converge.yml playbook and add it into your playbook:
+input_bootstrap_ssl_files_intermediates_ca:
+  - cn: "My Local Ansible Intermediate CA 1"
+    c: "FR"
+    st: "state"
+    l: "city"
+    o: "Local Ansible"
+    ou: "My Local Ansible Intermediate CA 1"
+    email_address: "contact@your.domain.tld"
+    password: "m3EH3A56h5mNY"
+    certification_ca: "My Local Ansible Root CA"
 
-```YAML
-- name: "Include tool.bootstrap_role"
-  tags:
-    - "tool.bootstrap_role"
-  vars:
-    bootstrap_role_base_path: "{{ inv_bootstrap_role_base_path }}"
-    bootstrap_role_meta_role_name: "{{ inv_bootstrap_role_meta_role_name }}"
-    bootstrap_role_meta_namespace: "{{ inv_bootstrap_role_meta_namespace }}"
-    bootstrap_role_technologies: "{{ inv_bootstrap_role_technologies }}"
-  ansible.builtin.include_role:
-    name: "tool.bootstrap_role"
+  - cn: "My Local Ansible Intermediate CA 2"
+    c: "FR"
+    st: "state"
+    l: "city"
+    o: "Local Ansible"
+    ou: "My Local Ansible Intermediate CA 2"
+    email_address: "contact@your.domain.tld"
+    password: "m3EH3A56*ùph5mNY"
+    certification_ca: "My Local Ansible Intermediate CA 1"
+
+input_bootstrap_ssl_files_end_certs:
+  - cn: "my-end-certificate-1.domain.tld"
+    c: "FR"
+    st: "state"
+    l: "city"
+    o: "Local Ansible"
+    ou: "Local Dev IT"
+    email_address: "contact@your.domain.tld"
+    alternatives:
+      - "127.0.0.1"
+      - "localhost"
+      - "my-website.tld"
+    certification_ca: "My Local Ansible Intermediate CA 1"
+
+  - cn: "my-end-certificate-2.domain.tld"
+    c: "FR"
+    st: "state"
+    l: "city"
+    o: "My Local Intermediate CA Two"
+    ou: "Local Dev IT"
+    email_address: "contact@your.domain.tld"
+    alternatives:
+      - "127.0.0.1"
+      - "localhost"
+      - "my-website.tld"
+    certification_ca: "My Local Ansible Intermediate CA 2"
+
+  - cn: "my-end-certificate-3.domain.tld"
+    c: "FR"
+    st: "state"
+    l: "city"
+    o: "Local Ansible"
+    ou: "Local Dev IT"
+    email_address: "contact@your.domain.tld"
+    alternatives:
+      - "127.0.0.1"
+      - "localhost"
+      - "my-website.tld"
+    certification_ca: "My Local Ansible Intermediate CA 2"
+
 ```
 
 ## Architectural Decisions Records
 
 Here you can put your change to keep a trace of your work and decisions.
 
-### 2023-04-27: First Init
+### 2023-07-24: First Init
 
-* First init of this role with the bootstrap_role playbook by Lord Robin Crombez
+* First init of this playbook with the bootstrap_playbook playbook by Lord Robin Crombez
 
-### 2023-05-05: SSL/TLS Testing
+### 2023-07-26: Crypto update
 
-* Addin a /certs folder in the test directory, to test the SSL/TLS if needed
-* Import the bootstrap_ssl_files to create the certs is possible to
-
-### 2023-05-30: Cryptographic update
-
-* SSL/TLS Materials are not handled by the role
-* Certs/CA have to be installed previously/after this role use
+* Prepare files are now compatible witht he bootstrap_ssl_files v2.0
 
 ## Authors
 
@@ -236,5 +199,5 @@ Here you can put your change to keep a trace of your work and decisions.
 
 ## Sources
 
-* [Ansible role documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html)
+* [Ansible playbook documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_playbooks.html)
 * [Ansible Molecule documentation](https://molecule.readthedocs.io/)
