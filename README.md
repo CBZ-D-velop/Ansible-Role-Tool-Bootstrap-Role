@@ -193,6 +193,10 @@ Here you can put your change to keep a trace of your work and decisions.
 
 * Prepare files are now compatible witht he bootstrap_ssl_files v2.0
 
+### 2023-08-06: Bug / Reminders fix
+
+* Fix some bug / incorrect comportment
+
 ## Authors
 
 * Lord Robin Crombez
