@@ -34,7 +34,7 @@ bootstrap_role_folders:
   - "meta"
   - "molecule"
   - "molecule/default"
-  - "molecule/gitlabci"
+  - "molecule/cicd-debian-11"
   - "tasks"
   - "templates"
   - "tests"
