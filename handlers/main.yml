@@ -1,11 +1,2 @@
 ---
-- name: "Enable and start SSH"
-  ansible.builtin.service:
-    name: ssh
-    state: started
-    enabled: yes
 
-- name: "Restart SSH"
-  ansible.builtin.service:
-    name: ssh
-    state: restarted

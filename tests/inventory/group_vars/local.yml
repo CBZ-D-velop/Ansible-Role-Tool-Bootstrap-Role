@@ -1,8 +1,8 @@
 ---
-inv_bootstrap_role_base_path: "/root"
-inv_bootstrap_role_meta_role_name: "my_new_role"
-inv_bootstrap_role_meta_namespace: "labocbz"
-inv_bootstrap_role_technologies:
+inv_bootstrap_role__base_path: "/root"
+inv_bootstrap_role__meta_role_name: "my_new_role"
+inv_bootstrap_role__meta_namespace: "labocbz"
+inv_bootstrap_role__technologies:
   - "UNIX"
   - "Ansible"
   - "Shell"

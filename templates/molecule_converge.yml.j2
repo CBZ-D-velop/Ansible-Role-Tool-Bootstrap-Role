@@ -9,8 +9,8 @@
         dest: "/tmp/hosts-from-controller"
         mode: 0700
 
-    - name: "Include {{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}"
+    - name: "Include {{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"
       tags:
-        - "{{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}"
+        - "{{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"
       ansible.builtin.include_role:
-        name: "{{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}"
+        name: "{{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"

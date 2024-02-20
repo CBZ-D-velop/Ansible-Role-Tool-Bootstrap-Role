@@ -13,9 +13,9 @@
       tags:
         - "tool.bootstrap_role"
       vars:
-        bootstrap_role_base_path: "{{ inv_bootstrap_role_base_path }}"
-        bootstrap_role_meta_role_name: "{{ inv_bootstrap_role_meta_role_name }}"
-        bootstrap_role_meta_namespace: "{{ inv_bootstrap_role_meta_namespace }}"
-        bootstrap_role_technologies: "{{ inv_bootstrap_role_technologies }}"
+        bootstrap_role__base_path: "{{ inv_bootstrap_role__base_path }}"
+        bootstrap_role__meta_role_name: "{{ inv_bootstrap_role__meta_role_name }}"
+        bootstrap_role__meta_namespace: "{{ inv_bootstrap_role__meta_namespace }}"
+        bootstrap_role__technologies: "{{ inv_bootstrap_role__technologies }}"
       ansible.builtin.include_role:
         name: "tool.bootstrap_role"

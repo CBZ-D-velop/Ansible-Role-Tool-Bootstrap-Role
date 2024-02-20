@@ -1,33 +1,33 @@
 ---
 # The current user and group to create file
-bootstrap_role_user: "root"
+bootstrap_role__user: "root"
 # The base path on where you want your role
-bootstrap_role_base_path: "/root"
+bootstrap_role__base_path: "/root"
 
 # Your author name
-bootstrap_role_meta_author: "Author"
+bootstrap_role__meta_author: "Author"
 # The namespace of your role
-bootstrap_role_meta_namespace: "root"
+bootstrap_role__meta_namespace: "root"
 # The role name
-bootstrap_role_meta_role_name: "my_new_role"
+bootstrap_role__meta_role_name: "my_new_role"
 # The little description for the meta file and the readme
-bootstrap_role_meta_description: "This is a limited description for the meta."
+bootstrap_role__meta_description: "This is a limited description for the meta."
 # Your compangy / lab name
-bootstrap_role_meta_company: "Corp"
+bootstrap_role__meta_company: "Corp"
 # The licence you wanna put on it (MIT file imported)
-bootstrap_role_meta_license: "MIT"
+bootstrap_role__meta_license: "MIT"
 # Some tags you want to put in plus of the base one
-bootstrap_role_tags:
+bootstrap_role__tags:
   - "UNIX"
 
 # The driver you use for molecule
-bootstrap_role_molecule_driver: "docker"
+bootstrap_role__molecule_driver: "docker"
 
 # The path of your future role
-bootstrap_role_path: "{{ bootstrap_role_base_path }}/{{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}"
+bootstrap_role__path: "{{ bootstrap_role__base_path }}/{{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"
 
 # A list of folder to create
-bootstrap_role_folders:
+bootstrap_role__folders:
   - "defaults"
   - "files"
   - "handlers"
@@ -35,6 +35,8 @@ bootstrap_role_folders:
   - "molecule"
   - "molecule/default"
   - "molecule/cicd-debian-11"
+  - "molecule/cicd-debian-12"
+  - "molecule/cicd-ubuntu-22"
   - "tasks"
   - "templates"
   - "tests"
