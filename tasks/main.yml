@@ -1,5 +1,5 @@
 ---
-- name: "Check if folder for the role {{ bootstrap_role__meta_role_name }} exist"
+- name: "Check if folder for the role exist"
   register: folder_check
   ansible.builtin.stat:
     path: "{{ bootstrap_role__path }}"
