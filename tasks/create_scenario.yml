@@ -25,7 +25,7 @@
         mode: "0700"
 
     - name: "create_scenario | Copy Molecule hosts_vars for role {{ bootstrap_role__meta_role_name }}"
-      loop: "{{ range(scenario.hosts)}}"
+      loop: "{{ range(scenario.hosts) }}"
       loop_control:
         loop_var: iterator
       ansible.builtin.copy:
