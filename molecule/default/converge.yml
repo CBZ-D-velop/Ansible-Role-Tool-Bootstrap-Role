@@ -1,21 +1,29 @@
 ---
 - name: "Converge"
-  hosts: "all"
+  hosts: "local"
   tasks:
-    # replace these tasks with whatever you find suitable to test
-    - name: "Copy something to test use of synchronize module"
-      ansible.builtin.copy:
-        src: "/etc/hosts"
-        dest: "/tmp/hosts-from-controller"
-        mode: 0700
 
     - name: "Include tool.bootstrap_role"
       tags:
         - "tool.bootstrap_role"
       vars:
-        bootstrap_role_base_path: "{{ inv_bootstrap_role_base_path }}"
-        bootstrap_role_meta_role_name: "{{ inv_bootstrap_role_meta_role_name }}"
-        bootstrap_role_meta_namespace: "{{ inv_bootstrap_role_meta_namespace }}"
-        bootstrap_role_technologies: "{{ inv_bootstrap_role_technologies }}"
+        bootstrap_role__user: "{{ inv_bootstrap_role__user }}"
+        bootstrap_role__base_path: "{{ inv_bootstrap_role__base_path }}"
+        bootstrap_role__meta_author: "{{ inv_bootstrap_role__meta_author }}"
+        bootstrap_role__meta_namespace: "{{ inv_bootstrap_role__meta_namespace }}"
+        bootstrap_role__meta_role_name: "{{ inv_bootstrap_role__meta_role_name }}"
+        bootstrap_role__meta_description: "{{ inv_bootstrap_role__meta_description }}"
+        bootstrap_role__meta_company: "{{ inv_bootstrap_role__meta_company }}"
+        bootstrap_role__meta_license: "{{ inv_bootstrap_role__meta_license }}"
+        bootstrap_role__tags: "{{ inv_bootstrap_role__tags }}"
+        bootstrap_role__molecule_driver: "{{ inv_bootstrap_role__molecule_driver }}"
+        bootstrap_role__path: "{{ inv_bootstrap_role__path }}"
+        bootstrap_role__folders: "{{ inv_bootstrap_role__folders }}"
+        bootstrap_role__molecule_scenarios: "{{ inv_bootstrap_role__molecule_scenarios }}"
+        bootstrap_role__inventory_groups: "{{ inv_bootstrap_role__inventory_groups }}"
+        bootstrap_role__requirements: "{{ inv_bootstrap_role__requirements }}"
+        bootstrap_role__platforms: "{{ inv_bootstrap_role__platforms }}"
+        bootstrap_role__molecule_test_sequence: "{{ inv_bootstrap_role__molecule_test_sequence }}"
+        bootstrap_role__configuration_files: "{{ inv_bootstrap_role__configuration_files }}"
       ansible.builtin.include_role:
         name: "tool.bootstrap_role"

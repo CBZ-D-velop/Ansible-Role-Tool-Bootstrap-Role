@@ -1,0 +1,10 @@
+---
+- name: "Converge"
+  hosts: "{{ scenario.target_group }}"
+  tasks:
+
+    - name: "Include {{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"
+      tags:
+        - "{{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"
+      ansible.builtin.include_role:
+        name: "{{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"

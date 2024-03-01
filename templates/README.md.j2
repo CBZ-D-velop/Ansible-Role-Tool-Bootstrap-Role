@@ -1,20 +1,20 @@
-# Ansible role: {{ bootstrap_role_meta_namespace }}.{{ bootstrap_role_meta_role_name }}
+# Ansible role: {{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}
 
-![Licence Status](https://img.shields.io/badge/licence-{{ bootstrap_role_meta_license }}-brightgreen)
+![Licence Status](https://img.shields.io/badge/licence-{{ bootstrap_role__meta_license }}-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
 ![Testing Method](https://img.shields.io/badge/Testing%20Method-Ansible%20Molecule-blueviolet)
-![Testing Driver](https://img.shields.io/badge/Testing%20Driver-{{ bootstrap_role_molecule_driver }}-blueviolet)
+![Testing Driver](https://img.shields.io/badge/Testing%20Driver-{{ bootstrap_role__molecule_driver }}-blueviolet)
 ![Language Status](https://img.shields.io/badge/language-Ansible-red)
-![Compagny](https://img.shields.io/badge/Compagny-{{ bootstrap_role_meta_company.replace(" ", "%20").replace("-", "--").replace("/", "%2F") }}-blue)
-![Author](https://img.shields.io/badge/Author-{{ bootstrap_role_meta_author.replace(" ", "%20").replace("-", "--").replace("/", "%2F") }}-blue)
+![Compagny](https://img.shields.io/badge/Compagny-{{ bootstrap_role__meta_company.replace(" ", "%20").replace("-", "--").replace("/", "%2F") }}-blue)
+![Author](https://img.shields.io/badge/Author-{{ bootstrap_role__meta_author.replace(" ", "%20").replace("-", "--").replace("/", "%2F") }}-blue)
 
 ## Description
 
-{% for tag in bootstrap_role_tags %}
+{% for tag in bootstrap_role__tags %}
 ![Tag: {{ tag }}](https://img.shields.io/badge/Tech-{{ tag.replace(" ", "%20").replace("-", "--").replace("/", "%2F") }}-orange)
 {% endfor %}
 
-{{ bootstrap_role_meta_description }}
+{{ bootstrap_role__meta_description }}
 
 ## Folder structure
 
@@ -135,11 +135,11 @@ Here you can put your change to keep a trace of your work and decisions.
 
 ### {{ ansible_date_time.date }}: First Init
 
-* First init of this role with the bootstrap_role playbook by {{ bootstrap_role_meta_author }}
+* First init of this role with the bootstrap_role playbook by {{ bootstrap_role__meta_author }}
 
 ## Authors
 
-* {{ bootstrap_role_meta_author }}
+* {{ bootstrap_role__meta_author }}
 
 ## Sources
 
