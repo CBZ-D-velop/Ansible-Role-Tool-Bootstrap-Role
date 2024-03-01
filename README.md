@@ -113,24 +113,16 @@ Some vars a required to run this role:
 
 ```YAML
 ---
-# The current user and group to create file
 bootstrap_role__user: "root"
-# The base path on where you want your role
 bootstrap_role__base_path: "/root"
 
-# Your author name
 bootstrap_role__meta_author: "Author"
-# The namespace of your role
 bootstrap_role__meta_namespace: "root"
-# The role name
 bootstrap_role__meta_role_name: "my_new_role"
-# The little description for the meta file and the readme
 bootstrap_role__meta_description: "This is a limited description for the meta."
-# Your compangy / lab name
 bootstrap_role__meta_company: "Corp"
-# The licence you wanna put on it (MIT file imported)
 bootstrap_role__meta_license: "MIT"
-# Some tags you want to put in plus of the base one
+
 bootstrap_role__tags:
   - "UNIX"
 
@@ -147,10 +139,6 @@ bootstrap_role__folders:
   - "handlers"
   - "meta"
   - "molecule"
-  - "molecule/default"
-  - "molecule/cicd-debian-11"
-  - "molecule/cicd-debian-12"
-  - "molecule/cicd-ubuntu-22"
   - "tasks"
   - "templates"
   - "tests"
@@ -161,8 +149,37 @@ bootstrap_role__folders:
   - "tests/certs"
   - "vars"
 
+bootstrap_role__molecule_scenarios:
+  - { ssl: true, hosts: 3, name: "default", target_group: "local", docker_image: "robincbz/debian-12-ansible:latest" }
+  - { ssl: true, hosts: 3, name: "cicd-debian-11", target_group: "cicd-debian-11", docker_image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_11_ANSIBLE}" }
+  - { ssl: true, hosts: 3, name: "cicd-debian-12", target_group: "cicd-debian-12", docker_image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_12_ANSIBLE}" }
+  - { ssl: true, hosts: 3, name: "cicd-ubuntu-22", target_group: "cicd-ubuntu-22", docker_image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_UBUNTU_22_ANSIBLE}" }
+
+bootstrap_role__inventory_groups:
+  - "SQL"
+  - "APACHE2"
+  - "PHP"
+
+bootstrap_role__requirements:
+  - { name: "labocbz.prepare_host", src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Prepare-Host.git" }
+
+bootstrap_role__platforms:
+    - "Debian"
+    - "Ubuntu"
+
+bootstrap_role__molecule_test_sequence:
+  - "destroy"
+  - "syntax"
+  - "dependency"
+  - "create"
+  - "prepare"
+  - "converge"
+  - "idempotence"
+  - "verify"
+  - "destroy"
+
 # Some file to import in the root folder of the future role
-bootstrap_root_files:
+bootstrap_role__configuration_files:
   - ".ansible-lint"
   - ".ansible.cfg"
   - ".yamllint"
@@ -180,14 +197,78 @@ In order to surchage vars, you have multiples possibilities but for mains cases 
 ```YAML
 # From inventory
 ---
+inv_bootstrap_role__user: "root"
 inv_bootstrap_role__base_path: "/root"
+
+inv_bootstrap_role__meta_author: "Author"
+inv_bootstrap_role__meta_namespace: "root"
 inv_bootstrap_role__meta_role_name: "my_new_role"
-inv_bootstrap_role__meta_namespace: "labocbz"
-inv_bootstrap_role__technologies:
+inv_bootstrap_role__meta_description: "This is a limited description for the meta."
+inv_bootstrap_role__meta_company: "Corp"
+inv_bootstrap_role__meta_license: "MIT"
+
+inv_bootstrap_role__tags:
   - "UNIX"
-  - "Ansible"
-  - "Shell"
+
+# The driver you use for molecule
+inv_bootstrap_role__molecule_driver: "docker"
+
+# The path of your future role
+inv_bootstrap_role__path: "{{ inv_bootstrap_role__base_path }}/{{ inv_bootstrap_role__meta_namespace }}.{{ inv_bootstrap_role__meta_role_name }}"
+
+# A list of folder to create
+inv_bootstrap_role__folders:
+  - "defaults"
+  - "files"
+  - "handlers"
+  - "meta"
+  - "molecule"
+  - "tasks"
+  - "templates"
+  - "tests"
+  - "tests/tower"
+  - "tests/inventory"
+  - "tests/inventory/group_vars"
+  - "tests/inventory/host_vars"
+  - "tests/certs"
+  - "vars"
+
+inv_bootstrap_role__molecule_scenarios:
+  - { ssl: true, hosts: 3, name: "default", target_group: "local", docker_image: "robincbz/debian-12-ansible:latest" }
+  - { ssl: true, hosts: 3, name: "cicd-debian-11", target_group: "cicd-debian-11", docker_image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_11_ANSIBLE}" }
+  - { ssl: true, hosts: 3, name: "cicd-debian-12", target_group: "cicd-debian-12", docker_image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_DEBIAN_12_ANSIBLE}" }
+  - { ssl: true, hosts: 3, name: "cicd-ubuntu-22", target_group: "cicd-ubuntu-22", docker_image: "${NEXUS_REPOS_DOCKER_REGISTRY}/${DOCKER_IMAGE_UBUNTU_22_ANSIBLE}" }
+
+inv_bootstrap_role__inventory_groups:
+  - "SQL"
+  - "APACHE2"
   - "PHP"
+
+inv_bootstrap_role__requirements:
+  - { name: "labocbz.prepare_host", src: "https://github.com/CBZ-D-velop/Ansible-Role-Labocbz-Prepare-Host.git" }
+
+inv_bootstrap_role__platforms:
+    - "Debian"
+    - "Ubuntu"
+
+inv_bootstrap_role__molecule_test_sequence:
+  - "destroy"
+  - "syntax"
+  - "dependency"
+  - "create"
+  - "prepare"
+  - "converge"
+  - "idempotence"
+  - "verify"
+  - "destroy"
+
+# Some file to import in the root folder of the future role
+inv_bootstrap_role__configuration_files:
+  - ".ansible-lint"
+  - ".ansible.cfg"
+  - ".yamllint"
+  - "CODEOWNERS"
+  - ".gitlab-ci.yml"
 
 ```
 
@@ -206,10 +287,24 @@ To run this role, you can copy the molecule/default/converge.yml playbook and ad
   tags:
     - "tool.bootstrap_role"
   vars:
+    bootstrap_role__user: "{{ inv_bootstrap_role__user }}"
     bootstrap_role__base_path: "{{ inv_bootstrap_role__base_path }}"
-    bootstrap_role__meta_role_name: "{{ inv_bootstrap_role__meta_role_name }}"
+    bootstrap_role__meta_author: "{{ inv_bootstrap_role__meta_author }}"
     bootstrap_role__meta_namespace: "{{ inv_bootstrap_role__meta_namespace }}"
-    bootstrap_role__technologies: "{{ inv_bootstrap_role__technologies }}"
+    bootstrap_role__meta_role_name: "{{ inv_bootstrap_role__meta_role_name }}"
+    bootstrap_role__meta_description: "{{ inv_bootstrap_role__meta_description }}"
+    bootstrap_role__meta_company: "{{ inv_bootstrap_role__meta_company }}"
+    bootstrap_role__meta_license: "{{ inv_bootstrap_role__meta_license }}"
+    bootstrap_role__tags: "{{ inv_bootstrap_role__tags }}"
+    bootstrap_role__molecule_driver: "{{ inv_bootstrap_role__molecule_driver }}"
+    bootstrap_role__path: "{{ inv_bootstrap_role__path }}"
+    bootstrap_role__folders: "{{ inv_bootstrap_role__folders }}"
+    bootstrap_role__molecule_scenarios: "{{ inv_bootstrap_role__molecule_scenarios }}"
+    bootstrap_role__inventory_groups: "{{ inv_bootstrap_role__inventory_groups }}"
+    bootstrap_role__requirements: "{{ inv_bootstrap_role__requirements }}"
+    bootstrap_role__platforms: "{{ inv_bootstrap_role__platforms }}"
+    bootstrap_role__molecule_test_sequence: "{{ inv_bootstrap_role__molecule_test_sequence }}"
+    bootstrap_role__configuration_files: "{{ inv_bootstrap_role__configuration_files }}"
   ansible.builtin.include_role:
     name: "tool.bootstrap_role"
 ```
@@ -237,6 +332,16 @@ Here you can put your change to keep a trace of your work and decisions.
 * Imported new CICD
 * Rework global on readme
 * Rename of vars __
+
+### 2024-03-01: Rework
+
+* You can now define your scenario
+* Groups vars handled
+* You can now define your requirements
+* You can now define your test sequence
+* You can now define your configuration list file
+* You can now define docker images for your scenario
+* You can now define how much hosts to create for each scenario
 
 ## Authors
 

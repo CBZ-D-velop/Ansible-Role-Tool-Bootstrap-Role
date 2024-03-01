@@ -1,11 +1,5 @@
 ---
-- name: "Check if folder for the role exist"
-  register: folder_check
-  ansible.builtin.stat:
-    path: "{{ bootstrap_role__path }}"
-
 - name: "Boostrap the role {{ bootstrap_role__meta_role_name }}"
-  when: not folder_check.stat.exists
   block:
     - name: "Create folders"
       block:
@@ -15,7 +9,7 @@
             state: directory
             owner: "{{ bootstrap_role__user }}"
             group: "{{ bootstrap_role__user }}"
-            mode: 0700
+            mode: "0700"
 
         - name: "Create all sub directories"
           loop: "{{ bootstrap_role__folders }}"
@@ -27,11 +21,23 @@
             recurse: yes
             owner: "{{ bootstrap_role__user }}"
             group: "{{ bootstrap_role__user }}"
-            mode: 0700
+            mode: "0700"
 
-    - name: "Import files"
+        - name: "Create all molecule directories"
+          loop: "{{ bootstrap_role__molecule_scenarios }}"
+          loop_control:
+            loop_var: scenario
+          ansible.builtin.file:
+            path: "{{ bootstrap_role__path }}/molecule/{{ scenario.name }}"
+            state: directory
+            recurse: yes
+            owner: "{{ bootstrap_role__user }}"
+            group: "{{ bootstrap_role__user }}"
+            mode: "0700"
+
+    - name: "Import main files"
       block:
-        - name: "Import all README.md"
+        - name: "Import all README.md in directories"
           loop: "{{ bootstrap_role__folders }}"
           loop_control:
             loop_var: folder
@@ -40,10 +46,21 @@
             dest: "{{ bootstrap_role__path }}/{{ folder }}/README.md"
             owner: "{{ bootstrap_role__user }}"
             group: "{{ bootstrap_role__user }}"
-            mode: 0700
+            mode: "0700"
+
+        - name: "Import all README.md in scenario"
+          loop: "{{ bootstrap_role__molecule_scenarios }}"
+          loop_control:
+            loop_var: scenario
+          ansible.builtin.copy:
+            src: "files/README.md"
+            dest: "{{ bootstrap_role__path }}/molecule/{{ scenario.name }}/README.md"
+            owner: "{{ bootstrap_role__user }}"
+            group: "{{ bootstrap_role__user }}"
+            mode: "0700"
 
         - name: "Import all configuration files"
-          loop: "{{ bootstrap_root_files }}"
+          loop: "{{ bootstrap__role_configuration_files }}"
           loop_control:
             loop_var: file
           ansible.builtin.copy:
@@ -51,7 +68,7 @@
             dest: "{{ bootstrap_role__path }}/{{ file }}"
             owner: "{{ bootstrap_role__user }}"
             group: "{{ bootstrap_role__user }}"
-            mode: 0700
+            mode: "0700"
 
         - name: "Import all main.yml files"
           loop: "{{ bootstrap_role__folders }}"
@@ -60,10 +77,6 @@
           vars:
             excluded_folders:
               - "molecule"
-              - "molecule/default"
-              - "molecule/cicd-debian-11"
-              - "molecule/cicd-debian-12"
-              - "molecule/cicd-ubuntu-22"
               - "templates"
               - "tests"
               - "tests/tower"
@@ -71,17 +84,18 @@
               - "tests/inventory"
               - "tests/inventory/group_vars"
               - "tests/inventory/host_vars"
+              - "meta"
           when: folder not in excluded_folders
           ansible.builtin.copy:
             src: "files/main.yml"
             dest: "{{ bootstrap_role__path }}/{{ folder }}/main.yml"
             owner: "{{ bootstrap_role__user }}"
             group: "{{ bootstrap_role__user }}"
-            mode: 0700
+            mode: "0700"
 
     - name: "Template base elements for role {{ bootstrap_role__meta_role_name }}"
       loop:
-        - { src: "templates/meta_main.yml.j2", dest: "{{ bootstrap_role__path }}/meta/main.yml" }
+        - { src: "templates/meta.yml.j2", dest: "{{ bootstrap_role__path }}/meta/main.yml" }
         - { src: "templates/README.md.j2", dest: "{{ bootstrap_role__path }}/README.md" }
         - { src: "templates/LICENCE.j2", dest: "{{ bootstrap_role__path }}/LICENCE" }
       loop_control:
@@ -91,26 +105,13 @@
         dest: "{{ file.dest }}"
         owner: "{{ bootstrap_role__user }}"
         group: "{{ bootstrap_role__user }}"
-        mode: 0700
-
-    - name: "Template elements for inventory and testing for role {{ bootstrap_role__meta_role_name }}"
-      loop:
-        - { src: "templates/hosts.yml.j2", dest: "{{ bootstrap_role__path }}/tests/inventory/hosts.yml" }
-        - { src: "templates/host_file.yml.j2", dest: "{{ bootstrap_role__path }}/tests/inventory/host_vars/molecule-local-instance-1-{{ bootstrap_role__meta_role_name.replace('_', '-') }}.yml" }
-      loop_control:
-        loop_var: file
-      ansible.builtin.template:
-        src: "{{ file.src }}"
-        dest: "{{ file.dest }}"
-        owner: "{{ bootstrap_role__user }}"
-        group: "{{ bootstrap_role__user }}"
-        mode: 0700
+        mode: "0700"
+        lstrip_blocks: yes
 
     - name: "Copy elements for inventory and testing for role {{ bootstrap_role__meta_role_name }}"
       loop:
-        - { src: "files/local.yml", dest: "{{ bootstrap_role__path }}/tests/inventory/group_vars/local.yml" }
         - { src: "files/tower.yml", dest: "{{ bootstrap_role__path }}/tests/tower/tower.yml" }
-        - { src: "files/main-certs.yml", dest: "{{ bootstrap_role__path }}/tests/certs/main.yml" }
+        - { src: "files/certs.yml", dest: "{{ bootstrap_role__path }}/tests/certs/main.yml" }
       loop_control:
         loop_var: file
       ansible.builtin.copy:
@@ -118,47 +119,41 @@
         dest: "{{ file.dest }}"
         owner: "{{ bootstrap_role__user }}"
         group: "{{ bootstrap_role__user }}"
-        mode: 0700
+        mode: "0700"
 
-    - name: "Template Molecule files for role {{ bootstrap_role__meta_role_name }}"
-      loop:
-        - { src: "templates/molecule_default.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/default/molecule.yml" }
-        - { src: "templates/molecule_cicd-debian-11.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-11/molecule.yml" }
-        - { src: "templates/molecule_cicd-debian-12.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-12/molecule.yml" }
-        - { src: "templates/molecule_cicd-ubuntu-22.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/cicd-ubuntu-22/molecule.yml" }
-        #
-        - { src: "templates/molecule_converge.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/default/converge.yml" }
-        - { src: "templates/molecule_converge.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-11/converge.yml" }
-        - { src: "templates/molecule_converge.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-12/converge.yml" }
-        - { src: "templates/molecule_converge.yml.j2", dest: "{{ bootstrap_role__path }}/molecule/cicd-ubuntu-22/converge.yml" }
+    - name: "Create Molecule scenarios (confs and inventory)"
+      loop: "{{ bootstrap_role__molecule_scenarios }}"
       loop_control:
-        loop_var: file
+        loop_var: scenario
+      ansible.builtin.include_tasks:
+        file: "create_scenario.yml"
+
+    - name: "Template inventory hosts file for role {{ bootstrap_role__meta_role_name }}"
       ansible.builtin.template:
-        src: "{{ file.src }}"
-        dest: "{{ file.dest }}"
+        src: "templates/hosts.yml.j2"
+        dest: "{{ bootstrap_role__path }}/tests/inventory/hosts.yml"
         owner: "{{ bootstrap_role__user }}"
         group: "{{ bootstrap_role__user }}"
-        mode: 0700
+        mode: "0700"
+        lstrip_blocks: yes
 
-    - name: "Import Molecule files for role {{ bootstrap_role__meta_role_name }}"
-      loop:
-        - { src: "files/prepare.yml", dest: "{{ bootstrap_role__path }}/molecule/default/prepare.yml" }
-        - { src: "files/prepare.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-11/prepare.yml" }
-        - { src: "files/prepare.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-12/prepare.yml" }
-        - { src: "files/prepare.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-ubuntu-22/prepare.yml" }
-        - { src: "files/verify.yml", dest: "{{ bootstrap_role__path }}/molecule/default/verify.yml" }
-        - { src: "files/verify.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-11/verify.yml" }
-        - { src: "files/verify.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-12/verify.yml" }
-        - { src: "files/verify.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-ubuntu-22/verify.yml" }
-        - { src: "files/requirements.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-11/requirements.yml" }
-        - { src: "files/requirements.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-debian-12/requirements.yml" }
-        - { src: "files/requirements.yml", dest: "{{ bootstrap_role__path }}/molecule/cicd-ubuntu-22/requirements.yml" }
-        - { src: "files/requirements.yml", dest: "{{ bootstrap_role__path }}/molecule/default/requirements.yml" }
+    - name: "Template inventory groups files for role {{ bootstrap_role__meta_role_name }}"
+      when: bootstrap_role__inventory_groups | default(false)
+      loop: "{{ bootstrap_role__inventory_groups }}"
       loop_control:
-        loop_var: file
-      ansible.builtin.copy:
-        src: "{{ file.src }}"
-        dest: "{{ file.dest }}"
+        loop_var: group
+      ansible.builtin.template:
+        src: "files/main.yml"
+        dest: "{{ bootstrap_role__path }}/tests/inventory/group_vars/{{ group }}.yml"
         owner: "{{ bootstrap_role__user }}"
         group: "{{ bootstrap_role__user }}"
-        mode: 0700
+        mode: "0700"
+        lstrip_blocks: yes
+
+    - name: "Copy main.yaml for all.yml"
+      ansible.builtin.copy:
+        src: "files/main.yml"
+        dest: "{{ bootstrap_role__path }}/tests/inventory/group_vars/all.yml"
+        owner: "{{ bootstrap_role__user }}"
+        group: "{{ bootstrap_role__user }}"
+        mode: "0700"

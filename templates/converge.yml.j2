@@ -1,13 +1,7 @@
 ---
 - name: "Converge"
-  hosts: "all"
+  hosts: "{{ scenario.target_group }}"
   tasks:
-    # replace these tasks with whatever you find suitable to test
-    - name: "Copy something to test use of synchronize module"
-      ansible.builtin.copy:
-        src: "/etc/hosts"
-        dest: "/tmp/hosts-from-controller"
-        mode: 0700
 
     - name: "Include {{ bootstrap_role__meta_namespace }}.{{ bootstrap_role__meta_role_name }}"
       tags:

@@ -1,6 +1,21 @@
 ---
-
+all:
   children:
-    local:
+{% for scenario in bootstrap_role__molecule_scenarios %}
+    {{ scenario.target_group }}:
       hosts:
-        molecule-cicd-instance-1-{{ bootstrap_role__meta_role_name.replace("_", "-") }}:
+{% for n in range(scenario.hosts)  %}
+        molecule-{{ scenario.target_group }}-instance-{{ loop.index }}-{{ bootstrap_role__meta_role_name.replace('_', '-') }}:
+{% endfor %}
+{% endfor %}
+{% if bootstrap_role__inventory_groups | default(false) %}
+{% for group in bootstrap_role__inventory_groups %}
+    {{ group }}:
+      hosts:
+{% for scenario in bootstrap_role__molecule_scenarios %}
+{% for n in range(scenario.hosts)  %}
+        molecule-{{ scenario.target_group }}-instance-{{ loop.index }}-{{ bootstrap_role__meta_role_name.replace('_', '-') }}:
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endif %}

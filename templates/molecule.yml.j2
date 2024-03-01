@@ -8,24 +8,27 @@ driver:
   name: "docker"
 
 platforms:
-  - name: "molecule-cicd-instance-1-{{ bootstrap_role__meta_role_name.replace("_", "-") }}"
-    image: "robincbz/debian-12-ansible:latest"
-    hostname: "molecule-cicd-instance-1-{{ bootstrap_role__meta_role_name.replace("_", "-") }}"
+{% for n in range(scenario.hosts)  %}
+  - name: "molecule-{{ scenario.target_group }}-instance-{{ loop.index }}-{{ bootstrap_role__meta_role_name.replace('_', '-') }}"
+    image: "{{ scenario.docker_image }}"
+    hostname: "molecule-{{ scenario.target_group }}-instance-{{ loop.index }}-{{ bootstrap_role__meta_role_name.replace('_', '-') }}"
     #published_ports:
     #  - "0.0.0.0:8181:8181/tcp"
     privileged: true
     pre_build_image: true
-    #tmpfs:
-    #  - "/run"
-    #  - "/tmp"
+    command: "/sbin/init"
     volumes:
-      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
-    #cgroupns_mode: "host"
-    #cgroup_manager: "cgroupfs"
-    #storage_opt: overlay.mount_program=/usr/bin/fuse-overlayfs
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    tmpfs:
+      - "/run"
+      - "/tmp"
+    cgroupns_mode: "host"
+    cgroup_manager: "cgroupfs"
     storage_driver: "overlay2"
     networks:
-      - name: "molecule-default-{{ bootstrap_role__meta_role_name.replace("_", "-") }}"
+      - name: "molecule-{{ scenario.target_group }}-{{ bootstrap_role__meta_role_name.replace('_', '-') }}"
+
+{% endfor %}
 
 provisioner:
   name: "ansible"
@@ -35,7 +38,11 @@ provisioner:
       group_vars: "../../tests/inventory/group_vars/"
       host_vars: "../../tests/inventory/host_vars/"
   options:
+{% if scenario.name == "default" %}
     extra-vars: "@./tests/tower/tower.yml"
+{% else %}
+    extra-vars: "@./../../tests/tower/tower.yml"
+{% endif %}
   log: ${MOLECULE_ANSIBLE_LOG:-true}
   env:
     ANSIBLE_CONFIG: "../../.ansible.cfg"
@@ -53,14 +60,8 @@ verifier:
   name: "ansible"
 
 scenario:
-  name: "default"
+  name: "{{ scenario.name }}"
   test_sequence:
-    - "destroy"
-    - "syntax"
-    - "dependency"
-    - "create"
-    - "prepare"
-    - "converge"
-    - "idempotence"
-    - "verify"
-    - "destroy"
+{% for test in bootstrap_role__molecule_test_sequence %}
+    - "{{ test }}"
+{% endfor %}
