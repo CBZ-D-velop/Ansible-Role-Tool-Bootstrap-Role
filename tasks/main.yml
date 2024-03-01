@@ -60,7 +60,7 @@
             mode: "0700"
 
         - name: "Import all configuration files"
-          loop: "{{ bootstrap__role_configuration_files }}"
+          loop: "{{ bootstrap_role__configuration_files }}"
           loop_control:
             loop_var: file
           ansible.builtin.copy:
