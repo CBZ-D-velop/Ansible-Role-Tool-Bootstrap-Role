@@ -122,6 +122,7 @@ bootstrap_role__meta_role_name: "my_new_role"
 bootstrap_role__meta_description: "This is a limited description for the meta."
 bootstrap_role__meta_company: "Corp"
 bootstrap_role__meta_license: "MIT"
+bootstrap_role__ssl: true
 
 bootstrap_role__tags:
   - "UNIX"
@@ -206,6 +207,7 @@ inv_bootstrap_role__meta_role_name: "my_new_role"
 inv_bootstrap_role__meta_description: "This is a limited description for the meta."
 inv_bootstrap_role__meta_company: "Corp"
 inv_bootstrap_role__meta_license: "MIT"
+inv_bootstrap_role__ssl: true
 
 inv_bootstrap_role__tags:
   - "UNIX"
@@ -305,6 +307,7 @@ To run this role, you can copy the molecule/default/converge.yml playbook and ad
     bootstrap_role__platforms: "{{ inv_bootstrap_role__platforms }}"
     bootstrap_role__molecule_test_sequence: "{{ inv_bootstrap_role__molecule_test_sequence }}"
     bootstrap_role__configuration_files: "{{ inv_bootstrap_role__configuration_files }}"
+    bootstrap_role__ssl: "{{ inv_bootstrap_role__ssl }}"
   ansible.builtin.include_role:
     name: "tool.bootstrap_role"
 ```
