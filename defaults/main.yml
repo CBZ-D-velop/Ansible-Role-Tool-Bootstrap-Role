@@ -8,6 +8,7 @@ bootstrap_role__meta_role_name: "my_new_role"
 bootstrap_role__meta_description: "This is a limited description for the meta."
 bootstrap_role__meta_company: "Corp"
 bootstrap_role__meta_license: "MIT"
+bootstrap_role__ssl: true
 
 bootstrap_role__tags:
   - "UNIX"
