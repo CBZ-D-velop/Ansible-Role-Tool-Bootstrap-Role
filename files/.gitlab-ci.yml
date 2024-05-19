@@ -9,8 +9,8 @@
 stages:
 - gitlab-test
 - lint
-- sonarqube
-- test
+- sonarqube-check
+- molecule
 - publish
 
 ###############################################################################
@@ -21,29 +21,34 @@ variables:
   ANSIBLE_FORCE_COLOR: "true"
   PY_COLORS: "1"
   #
-  DOCKER_IMAGE_SONAR_SCANNER_CLI: "robincbz/alpine-sonarcli:latest"
-  DOCKER_IMAGE_DOCKER_DIND_MOLECULE: robincbz/docker-dind-molecule:latest
-  DOCKER_IMAGE_DOCKER_DIND_ANSIBLE: robincbz/docker-dind-ansible:latest
-  DOCKER_IMAGE_ALPINE_GIT: robincbz/alpine-git:latest
-  DOCKER_IMAGE_ANSIBLE_LINT: robincbz/alpine-ansiblelint:latest
-  DOCKER_IMAGE_JINJA_LINT: robincbz/alpine-jinjalint:latest
-  DOCKER_IMAGE_YAML_LINT: robincbz/alpine-yamllint:latest
-  DOCKER_IMAGE_DEBIAN_11_ANSIBLE: robincbz/debian-11-ansible:latest
-  DOCKER_IMAGE_DEBIAN_12_ANSIBLE: robincbz/debian-12-ansible:latest
-  DOCKER_IMAGE_UBUNTU_22_ANSIBLE: robincbz/ubuntu-22-ansible:latest
-  DOCKER_IMAGE_ALPINE_RELEASE_CLI: "robincbz/alpine-releasecli:latest"
+  SONAR_HOST_URL: "$SONARQUBE_ADDRESS"
+  SONAR_TOKEN: "$GITLAB_CI_SONARQUBE_USER_TOKEN"
+  #
+  DOCKER_IMAGE__ANALYSE_SONAR_SCANNER: "labocbz/analyse-sonar-scanner:latest"
+  DOCKER_IMAGE__LINT_SECRETS: "labocbz/lint-secrets:latest"
+  DOCKER_IMAGE__LINT_ANSIBLE: "labocbz/lint-ansible:latest"
+  DOCKER_IMAGE__LINT_YAML: "labocbz/lint-yaml:latest"
+  DOCKER_IMAGE__LINT_JINJA: "labocbz/lint-jinja:latest"
+  DOCKER_IMAGE__LINT_MARKDOWN: "labocbz/lint-markdown:latest"
+  DOCKER_IMAGE__RUN_SSH: "labocbz/run-ssh:latest"
+  DOCKER_IMAGE__RUN_ANSIBLE_MOLECULE: "labocbz/run-ansible-molecule:latest"
+  DOCKER_IMAGE__PUBLISH_GITLAB_RELEASE: "labocbz/publish-gitlab-release:latest"
+  DOCKER_IMAGE__ANSIBLETEST_DEBIAN_11: "labocbz/ansibletest-debian-11:latest"
+  DOCKER_IMAGE__ANSIBLETEST_DEBIAN_12: "labocbz/ansibletest-debian-12:latest"
+  DOCKER_IMAGE__ANSIBLETEST_UBUNTU_22: "labocbz/ansibletest-ubuntu-22:latest"
+  DOCKER_IMAGE__ANSIBLETEST_DOCKER_DIND: "labocbz/ansibletest-docker-dind:latest"
 
 ###############################################################################
 #################### EXTENDABLES
 ###############################################################################
 
 .molecule_test: &molecule_test
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_DOCKER_DIND_MOLECULE
-  stage: test
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__RUN_ANSIBLE_MOLECULE
+  stage: molecule
   before_script:
     - "export DOCKER_CLIENT_TIMEOUT=180"
     - "export COMPOSE_HTTP_TIMEOUT=180"
-    - "docker login -u \"$NEXUS_REPOS_USERNAME\" -p \"$NEXUS_REPOS_PASSWORD\" \"http://$NEXUS_REPOS_DOCKER_REGISTRY\""
+    - "docker login -u \"$NEXUS_REPOS_USERNAME\" -p \"$NEXUS_REPOS_PASSWORD\" \"http://$NEXUS_DOCKER_GROUP_REGISTRY\""
     - "python3 -m compileall /usr/lib/python3 -qq"
     - "cp ./.ansible.cfg /root/.ansible.cfg"
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
@@ -56,9 +61,9 @@ variables:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
   needs:
-    - "yaml_lint"
-    - "jinja_lint"
-    - "ansible_lint"
+    - "lint:yaml"
+    - "lint:jinja"
+    - "lint:ansible"
 
 ###############################################################################
 #################### CICD
@@ -69,11 +74,10 @@ sast:
   stage: gitlab-test
 include:
 - template: Security/SAST.gitlab-ci.yml
-  allow_failure: false
 
-yaml_lint:
+lint:yaml:
   stage: lint
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_YAML_LINT
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_YAML_LINT
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
@@ -85,9 +89,9 @@ yaml_lint:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-jinja_lint:
+lint:jinja:
   stage: lint
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_JINJA_LINT
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_JINJA_LINT
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
@@ -98,9 +102,9 @@ jinja_lint:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-ansible_lint:
+lint:ansible:
   stage: lint
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_ANSIBLE_LINT
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_ANSIBLE_LINT
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
@@ -111,14 +115,27 @@ ansible_lint:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-molecule_test_debian_12:
+lint:markdown:
+  stage: lint
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_MARKDOWN
+  before_script:
+    # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
+    # This probably happens due to gitlab-runner mounting the git repo into the container
+    - "chmod o-w ."
+  script:
+    - markdownlint './README.md' --disable MD013
+  allow_failure: false
+  rules:
+    - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
+
+molecule:test-debian-12:
   <<: *molecule_test
   variables:
     SCENARIO: "cicd-debian-12"
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-molecule_test_ubuntu_22:
+molecule:test-ubuntu-22:
   <<: *molecule_test
   variables:
     SCENARIO: "cicd-ubuntu-22"
@@ -126,7 +143,7 @@ molecule_test_ubuntu_22:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-molecule_test_debian_11:
+molecule:test-debian-11:
   <<: *molecule_test
   variables:
     SCENARIO: "cicd-debian-11"
@@ -134,8 +151,8 @@ molecule_test_debian_11:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-publish_release_candidate:
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_ALPINE_GIT
+publish:release-candidate:
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__RUN_SSH
   stage: publish
   variables:
     CI_JOB_TOKEN: $CICD_TOKEN
@@ -172,9 +189,9 @@ publish_release_candidate:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
 sonarqube-check:
-  stage: sonarqube
+  stage: sonarqube-check
   image: 
-    name: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_SONAR_SCANNER_CLI
+    name: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_SONAR_SCANNER_CLI
     entrypoint: [""]
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -189,8 +206,8 @@ sonarqube-check:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
     - if: '$CI_COMMIT_BRANCH == "main"'
 
-set_version_artefact:
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_ALPINE_GIT
+publish:set-artefact-version:
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__RUN_SSH
   stage: publish
   before_script:
     - "TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -oE 'refs/tags/[0-9.]+' | cut -d '/' -f 3 | sort -V)"
@@ -207,8 +224,8 @@ set_version_artefact:
   needs:
     - "sonarqube-check"
 
-publish_release:
-  image: $NEXUS_REPOS_DOCKER_REGISTRY/$DOCKER_IMAGE_ALPINE_RELEASE_CLI
+publish:release:
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__PUBLISH_GITLAB_RELEASE
   stage: publish
   script:
     - "echo \"RELEASE $VERSION from latest RC-$VERSION\""
@@ -220,5 +237,5 @@ publish_release:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
   needs:
-    - job: "set_version_artefact"
+    - job: "publish:set-artefact-version:"
       artifacts: true
