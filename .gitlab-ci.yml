@@ -183,7 +183,7 @@ publish:release-candidate:
     - "git add ."
     - "git push r_origin \"$RC_BRANCH_NAME\""
   needs:
-    - "molecule_test_debian_12"
+    - "molecule:test-debian-12"
     - "sonarqube-check"
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
