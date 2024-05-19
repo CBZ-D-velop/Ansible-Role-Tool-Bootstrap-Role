@@ -7,11 +7,10 @@
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 
 stages:
-- gitlab-test
-- lint
-- sonarqube-check
-- molecule
-- publish
+  - gitlab-test
+  - lint
+  - sonarqube-check
+  - molecule
 
 ###############################################################################
 #################### actions
@@ -51,9 +50,6 @@ variables:
     - "docker login -u \"$GITLAB_CI_NEXUS_CREDENTIALS_USR\" -p \"$GITLAB_CI_NEXUS_CREDENTIALS_PSW\" \"http://$NEXUS_DOCKER_GROUP_REGISTRY\""
     - "python3 -m compileall /usr/lib/python3 -qq"
     - "cp ./.ansible.cfg /root/.ansible.cfg"
-    # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
-    # This probably happens due to gitlab-runner mounting the git repo into the container
-    #- "chmod o-w ."
     - "[ -f \"./molecule/$SCENARIO/requirements.yml\" ] && ansible-galaxy install -r ./molecule/$SCENARIO/requirements.yml --roles-path=./molecule/$SCENARIO/roles"
   script:
     - "molecule test --scenario-name $SCENARIO"
@@ -78,10 +74,7 @@ include:
 lint:yaml:
   stage: lint
   image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_YAML
-  before_script:
-    # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
-    # This probably happens due to gitlab-runner mounting the git repo into the container
-    #- "chmod o-w ."
+
   script:
     - yamllint --list-files ./
     - yamllint -c ./.yamllint ./
@@ -92,10 +85,7 @@ lint:yaml:
 lint:jinja:
   stage: lint
   image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_JINJA
-  before_script:
-    # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
-    # This probably happens due to gitlab-runner mounting the git repo into the container
-    #- "chmod o-w ."
+
   script:
     - "[ -n \"$(find ./templates -name '*.j2')\" ] && j2lint ./templates/*.j2 --ignore S3 S7"
   allow_failure: false
@@ -105,10 +95,7 @@ lint:jinja:
 lint:ansible:
   stage: lint
   image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_ANSIBLE
-  before_script:
-    # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
-    # This probably happens due to gitlab-runner mounting the git repo into the container
-    #- "chmod o-w ."
+
   script:
     - ansible-lint --config=./.ansible-lint --exclude molecule --exclude tests ./*
   allow_failure: false
@@ -118,10 +105,7 @@ lint:ansible:
 lint:markdown:
   stage: lint
   image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_MARKDOWN
-  before_script:
-    # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
-    # This probably happens due to gitlab-runner mounting the git repo into the container
-    #- "chmod o-w ."
+
   script:
     - markdownlint './README.md' --disable MD013
   allow_failure: false
@@ -151,43 +135,6 @@ molecule:test-debian-11:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-publish:release-candidate:
-  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__RUN_SSH
-  stage: publish
-  variables:
-    CI_JOB_TOKEN: $CICD_TOKEN
-  allow_failure: false
-  before_script:
-    - "REMOTE_ADDRESS=$(echo \"$CI_REPOSITORY_URL\" | awk -F@ '{print $2}' | sed 's|/|:|')"
-    - "TIMESTAMP=$(date +'%Y.%m.%d-%H.%M.%S')"
-    - "TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -oE 'refs/tags/[0-9.]+' | cut -d '/' -f 3 | sort -V)"
-    - "LATEST_TAG=$(echo \"$TAGS\" | tail -n 1)"
-    - "VERSION=$(echo \"$LATEST_TAG\" | grep -oE '^[0-9]+') && VERSION=$((VERSION + 1))"
-    - "RC_BRANCH_NAME=\"RC-$VERSION-$TIMESTAMP\""
-    #
-    - "mkdir -p ~/.ssh"
-    - "echo \"$(cat $GITLAB_CI_SSH_PRIVATE_KEY)\" | tr -d '\r' > ~/.ssh/id_rsa"
-    - "echo \"$(cat $GITLAB_CI_SSH_PUBLIC_KEY)\" | tr -d '\r' > ~/.ssh/id_rsa.pub"
-    - "chmod 400 ~/.ssh/id_rsa*"
-    - "eval \"$(ssh-agent -s)\""
-    - "ssh-keyscan -H 'gitlab.com' >> ~/.ssh/known_hosts"
-  script:
-    - "git config user.email \"$GITLAB_USER_EMAIL\""
-    - "git config user.name \"$GITLAB_USER_EMAIL\""
-    - "git remote remove r_origin || true"
-    - "git remote add r_origin git@$REMOTE_ADDRESS"
-    - "git checkout \"develop\""
-    - "git stash"
-    - "git pull origin \"develop\""
-    - "git checkout -b \"$RC_BRANCH_NAME\""
-    - "git add ."
-    - "git push r_origin \"$RC_BRANCH_NAME\""
-  needs:
-    - "molecule:test-debian-12"
-    - "sonarqube-check"
-  rules:
-    - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
-
 sonarqube-check:
   stage: sonarqube-check
   image: 
@@ -205,37 +152,3 @@ sonarqube-check:
   rules:
     - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
     - if: '$CI_COMMIT_BRANCH == "main"'
-
-publish:set-artefact-version:
-  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__RUN_SSH
-  stage: publish
-  before_script:
-    - "TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -oE 'refs/tags/[0-9.]+' | cut -d '/' -f 3 | sort -V)"
-    - "LATEST_TAG=$(echo \"$TAGS\" | tail -n 1)"
-    - "VERSION=$(echo \"$LATEST_TAG\" | grep -oE '^[0-9]+') && VERSION=$((VERSION + 1))"
-  script:
-    - "echo \"RELEASE $VERSION from latest RC-$VERSION\""
-    - "echo \"VERSION=$VERSION\" >> VERSION.env"
-  artifacts:
-    reports:
-      dotenv: VERSION.env
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  needs:
-    - "sonarqube-check"
-
-publish:release:
-  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__PUBLISH_GITLAB_RELEASE
-  stage: publish
-  script:
-    - "echo \"RELEASE $VERSION from latest RC-$VERSION\""
-  release:
-    name: "$VERSION"
-    description: "RELEASE $VERSION from latest RC-$VERSION"
-    tag_name: "$VERSION"
-    ref: "$CI_COMMIT_SHA"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  needs:
-    - job: "publish:set-artefact-version"
-      artifacts: true
