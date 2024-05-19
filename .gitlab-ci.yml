@@ -53,7 +53,7 @@ variables:
     - "cp ./.ansible.cfg /root/.ansible.cfg"
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
-    - "chmod o-w ."
+    #- "chmod o-w ."
     - "[ -f \"./molecule/$SCENARIO/requirements.yml\" ] && ansible-galaxy install -r ./molecule/$SCENARIO/requirements.yml --roles-path=./molecule/$SCENARIO/roles"
   script:
     - "molecule test --scenario-name $SCENARIO"
@@ -81,7 +81,7 @@ lint:yaml:
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
-    - "chmod o-w ."
+    #- "chmod o-w ."
   script:
     - yamllint --list-files ./
     - yamllint -c ./.yamllint ./
@@ -95,7 +95,7 @@ lint:jinja:
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
-    - "chmod o-w ."
+    #- "chmod o-w ."
   script:
     - "[ -n \"$(find ./templates -name '*.j2')\" ] && j2lint ./templates/*.j2 --ignore S3 S7"
   allow_failure: false
@@ -108,7 +108,7 @@ lint:ansible:
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
-    - "chmod o-w ."
+    #- "chmod o-w ."
   script:
     - ansible-lint --config=./.ansible-lint --exclude molecule --exclude tests ./*
   allow_failure: false
@@ -121,7 +121,7 @@ lint:markdown:
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
-    - "chmod o-w ."
+    #- "chmod o-w ."
   script:
     - markdownlint './README.md' --disable MD013
   allow_failure: false
