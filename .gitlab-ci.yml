@@ -77,7 +77,7 @@ include:
 
 lint:yaml:
   stage: lint
-  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_YAML_LINT
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_YAML
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
@@ -91,7 +91,7 @@ lint:yaml:
 
 lint:jinja:
   stage: lint
-  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_JINJA_LINT
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_JINJA
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
@@ -104,7 +104,7 @@ lint:jinja:
 
 lint:ansible:
   stage: lint
-  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_ANSIBLE_LINT
+  image: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__LINT_ANSIBLE
   before_script:
     # Fix weird ansible bug: https://github.com/trailofbits/algo/issues/1637
     # This probably happens due to gitlab-runner mounting the git repo into the container
