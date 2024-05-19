@@ -50,6 +50,7 @@ variables:
     - "docker login -u \"$GITLAB_CI_NEXUS_CREDENTIALS_USR\" -p \"$GITLAB_CI_NEXUS_CREDENTIALS_PSW\" \"http://$NEXUS_DOCKER_GROUP_REGISTRY\""
     - "python3 -m compileall /usr/lib/python3 -qq"
     - "cp ./.ansible.cfg /root/.ansible.cfg"
+
     - "[ -f \"./molecule/$SCENARIO/requirements.yml\" ] && ansible-galaxy install -r ./molecule/$SCENARIO/requirements.yml --roles-path=./molecule/$SCENARIO/roles"
   script:
     - "molecule test --scenario-name $SCENARIO"
@@ -60,6 +61,7 @@ variables:
     - "lint:yaml"
     - "lint:jinja"
     - "lint:ansible"
+    - "lint:markdown"
 
 ###############################################################################
 #################### CICD
