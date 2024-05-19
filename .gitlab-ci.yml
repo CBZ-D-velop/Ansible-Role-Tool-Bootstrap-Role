@@ -31,7 +31,7 @@ variables:
   DOCKER_IMAGE__LINT_JINJA: "labocbz/lint-jinja:latest"
   DOCKER_IMAGE__LINT_MARKDOWN: "labocbz/lint-markdown:latest"
   DOCKER_IMAGE__RUN_SSH: "labocbz/run-ssh:latest"
-  DOCKER_IMAGE__RUN_ANSIBLE_MOLECULE: "labocbz/run-ansible-molecule:latest"
+  DOCKER_IMAGE__RUN_ANSIBLE_MOLECULE: "labocbz/run-ansible-molecule:0.2"
   DOCKER_IMAGE__PUBLISH_GITLAB_RELEASE: "labocbz/publish-gitlab-release:latest"
   DOCKER_IMAGE__ANSIBLETEST_DEBIAN_11: "labocbz/ansibletest-debian-11:latest"
   DOCKER_IMAGE__ANSIBLETEST_DEBIAN_12: "labocbz/ansibletest-debian-12:latest"
