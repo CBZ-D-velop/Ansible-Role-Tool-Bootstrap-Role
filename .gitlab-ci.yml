@@ -237,5 +237,5 @@ publish:release:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
   needs:
-    - job: "publish:set-artefact-version:"
+    - job: "publish:set-artefact-version"
       artifacts: true
