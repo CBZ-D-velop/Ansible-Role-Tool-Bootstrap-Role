@@ -73,7 +73,7 @@ variables:
 sast:
   stage: gitlab-test
 include:
-- template: Security/SAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
 
 lint:yaml:
   stage: lint
@@ -191,7 +191,7 @@ publish:release-candidate:
 sonarqube-check:
   stage: sonarqube-check
   image: 
-    name: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE_SONAR_SCANNER_CLI
+    name: $NEXUS_DOCKER_GROUP_REGISTRY/$DOCKER_IMAGE__ANALYSE_SONAR_SCANNER
     entrypoint: [""]
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
