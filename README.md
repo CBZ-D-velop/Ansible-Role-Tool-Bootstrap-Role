@@ -346,6 +346,13 @@ Here you can put your change to keep a trace of your work and decisions.
 * You can now define docker images for your scenario
 * You can now define how much hosts to create for each scenario
 
+### 2024-05-19: New CI
+
+* Added Markdown lint to the CICD
+* Rework all Docker images
+* Change CICD vars convention
+* New workers
+
 ## Authors
 
 * Lord Robin Crombez
