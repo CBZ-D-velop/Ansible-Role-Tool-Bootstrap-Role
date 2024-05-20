@@ -90,7 +90,6 @@ yamllint -c ./.yamllint .
 ansible-lint --config=./.ansible-lint .
 
 # Execute and test your role
-molecule lint
 molecule create
 molecule list
 molecule converge
@@ -305,7 +304,7 @@ To run this role, you can copy the molecule/default/converge.yml playbook and ad
     bootstrap_role__inventory_groups: "{{ inv_bootstrap_role__inventory_groups }}"
     bootstrap_role__requirements: "{{ inv_bootstrap_role__requirements }}"
     bootstrap_role__platforms: "{{ inv_bootstrap_role__platforms }}"
-    bootstrap_role__molecule_test_sequence: "{{ inv_bootstrap_role__molecule_test_sequence }}"
+    bootstrap_role__molecule_test_sequence: "{{ inv_bootstrap_role__molecule:test_sequence }}"
     bootstrap_role__configuration_files: "{{ inv_bootstrap_role__configuration_files }}"
     bootstrap_role__ssl: "{{ inv_bootstrap_role__ssl }}"
   ansible.builtin.include_role:
